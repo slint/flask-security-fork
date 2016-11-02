@@ -25,7 +25,7 @@ from .recoverable import reset_password_token_status, \
 from .changeable import change_user_password
 from .registerable import register_user
 from .utils import config_value, do_flash, get_url, get_post_login_redirect, \
-    get_post_register_redirect, get_message, login_user, logout_user, \
+    get_post_register_redirect, get_message, login_user, logout_user, md5, \
     url_for_security as url_for, slash_url_suffix
 
 # Convenient references
@@ -209,7 +209,7 @@ def send_confirmation():
 def confirm_email(token):
     """View function which handles a email confirmation request."""
 
-    expired, invalid, user = confirm_email_token_status(token)
+    expired, invalid, user, data = confirm_email_token_status(token)
 
     if not user or invalid:
         invalid = True
@@ -219,6 +219,12 @@ def confirm_email(token):
         do_flash(*get_message('CONFIRMATION_EXPIRED', email=user.email,
                               within=_security.confirm_email_within))
     if invalid or expired:
+        return redirect(get_url(_security.confirm_error_view) or
+                        url_for('send_confirmation'))
+
+    user_id, confirmation_email_md5 = data[1]
+    if md5(user.email) != confirmation_email_md5:
+        do_flash(*get_message('CONFIRMATION_EMAIL_CONFLICT'))
         return redirect(get_url(_security.confirm_error_view) or
                         url_for('send_confirmation'))
 

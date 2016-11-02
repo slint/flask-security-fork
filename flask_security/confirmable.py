@@ -64,14 +64,14 @@ def requires_confirmation(user):
 
 
 def confirm_email_token_status(token):
-    """Returns the expired status, invalid status, and user of a confirmation
-    token. For example::
+    """Returns the expired status, invalid status, user of a confirmation
+    token and the token data. For example::
 
-        expired, invalid, user = confirm_email_token_status('...')
+        expired, invalid, user, data = confirm_email_token_status('...')
 
     :param token: The confirmation token
     """
-    return get_token_status(token, 'confirm', 'CONFIRM_EMAIL')
+    return get_token_status(token, 'confirm', 'CONFIRM_EMAIL', return_data=True)
 
 
 def confirm_user(user):
